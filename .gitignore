@@ -10,5 +10,3 @@ cloudinary_python.txt
 kaggle.json
 .venv/
 iframe_figures/
-data/*.zip
-data/*.csv

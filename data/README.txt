@@ -1,6 +1,3 @@
-This project requires the file "archive.zip", which is too large to be hosted in GitHub but is available from here:
-
-
 README
 Spotify playlists dataset
 
