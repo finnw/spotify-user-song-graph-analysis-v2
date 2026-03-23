@@ -8,7 +8,7 @@ def decoded_line_generator(file):
         line_str = line.decode('utf-8')
         yield line_str
 
-def extract_top_songs(listens_path, songs_path, popular_listens_path, popular_songs_path, min_listens=20):
+def extract_top_songs(listens_path, songs_path, popular_listens_path, popular_songs_path, min_listens=20, user_permutation=None, highlights=None):
     # Pass 1: find the maximum song id to determine the size of the count array
     max_id = -1
     with open(listens_path, 'rb') as f:
@@ -38,21 +38,27 @@ def extract_top_songs(listens_path, songs_path, popular_listens_path, popular_so
     with open(songs_path, 'rb') as f_in, open(popular_songs_path, 'w', newline='', encoding='utf-8') as f_out:
         csv_reader = csv.reader(decoded_line_generator(f_in))
         csv_writer = csv.writer(f_out)
+        if highlights is not None:
+            hl_csv_writer = csv.writer(open(highlights[0], 'w', newline='', encoding='utf-8'))
         for row in csv_reader:
             song_id = int(row[0])
             if song_id in song_rank:
                 rank, count = song_rank[song_id]
                 artist = row[1]
                 title = row[2]
-                csv_writer.writerow([rank, count, song_id, artist, title])
+                hl_index = -1
+                if highlights is not None:
+                    hl_index = highlights[1].get(artist, -1)
+                csv_writer.writerow([rank, count, song_id, artist, title, hl_index])
 
     # Pass 4: create a filtered version of the listens file considering only the most popular songs, and replacing the song id with its rank
     with open(listens_path, 'rb') as f_in, open(popular_listens_path, 'w', newline='', encoding='utf-8') as f_out:
         csv_reader = csv.reader(decoded_line_generator(f_in))
         csv_writer = csv.writer(f_out)
         for row in csv_reader:
-            user_id = row[0]
+            user_id = int(row[0])
+            permuted_user_id = user_permutation[user_id] if user_permutation is not None else user_id
             song_id = int(row[1])
             if song_id in song_rank:
                 rank, count = song_rank[song_id]
-                csv_writer.writerow([user_id, rank, song_id])
+                csv_writer.writerow([permuted_user_id, rank, song_id])

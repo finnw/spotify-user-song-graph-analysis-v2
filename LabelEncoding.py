@@ -22,13 +22,18 @@ class LabelEncoding:
             self.reverse_mapping = {v: k for k, v in self.mapping.items()}
         return self.reverse_mapping[id]
 
-    def export_csv(self, file_path, fields = None):
+    def export_csv(self, file_path, heading = None):
         """Export the mapping to a CSV file."""
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
-            if fields:
-                for value, id in self.mapping.items():
-                    writer.writerow(list((id,) + tuple(value)))
+            if heading:
+                writer.writerow(heading)
+                if len(heading) == 2:
+                    for value, id in self.mapping.items():
+                        writer.writerow([id, value])
+                else:    
+                    for value, id in self.mapping.items():
+                        writer.writerow(list((id,) + tuple(value)))
             else:
                 for value, id in self.mapping.items():
                     writer.writerow([id, value])
